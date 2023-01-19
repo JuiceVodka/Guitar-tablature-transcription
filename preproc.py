@@ -1,9 +1,13 @@
+import math
+
 import librosa
 import numpy as np
 import librosa as lb
 from scipy.fftpack import fft, fftfreq
+from scipy.io import wavfile
 from matplotlib import pyplot as plt
 import os
+import readJam as rj
 
 
 def toFFTvec(path):
@@ -45,29 +49,57 @@ def readDt(dirPath):
     return sndStack
 
 #1 constantq for 1 patch of data, each patch is 1 entry into neural network
-def cnstntQ(filePath): # todo add padding for sliding window and save to disk to use in data generator
-    snd, sr = lb.load(filePath, sr=44100, mono=True)#, offset=start, duration=dur)
-    snd = librosa.resample(snd, orig_sr=44100, target_sr=22050)
+def cnstntQ(filePath, padLen=9):
+    #snd, sr = lb.load(filePath, sr=44100, mono=True)#, offset=start, duration=dur)
+    sr, snd = wavfile.read(filePath)
+    snd = snd.astype(float)
     sndNorm = librosa.util.normalize(snd)
+    sndNorm = librosa.resample(sndNorm, orig_sr=sr, target_sr=22050)
 
-    constantq = lb.cqt(sndNorm, sr=22050, hop_length=1024, fmin=75, n_bins=190, bins_per_octave=24) #in article hop len 512, num bins 192 -> for this samplinmg freq has to be higher
-    constantqMagnifie = librosa.magphase(constantq)[0]
-    constantqDB = librosa.core.amplitude_to_db(constantqMagnifie, ref=constantqMagnifie.max())
-    cqtOut = np.copy(constantqDB)
-    cqtOut[cqtOut < -60] = -120
+    #better results without min freq at 75
+    constantq = lb.cqt(sndNorm, sr=22050, hop_length=512, n_bins=192, bins_per_octave=24) #in article hop len 512, num bins 192 -> for this samplinmg freq has to be higher
+
+    cqtOut = constantq
+    #constantqMagnifie = librosa.magphase(constantq)[0]
+    #constantqDB = librosa.core.amplitude_to_db(constantqMagnifie, ref=constantqMagnifie.max())
+    #cqtOut = np.copy(constantqDB)
+    #cqtOut[cqtOut < -60] = -60
+    #cqtOut[:, :] += 60
+    #cqtOut = np.pad(constantq, ((0, 0), (math.floor(padLen/2), math.floor(padLen/2))), 'constant')
+
     print("-------")
     print(filePath.split("/")[1])
     print(cqtOut.shape)
-    return cqtOut
+    return np.abs(cqtOut)
 
 
-def readDTcnstQ(dirPath):
-    for file in os.listdir(dirPath):
-        filePath = os.path.join(dirPath, file)
+def readDTcnstQ(sndPath, tabPath, save=False):
+    songSliceArtistList = []
+    for i, file in enumerate(os.listdir(sndPath)):
+        spec_tab_dict = {}
+
+        tabFile = f"{file[:-8]}.jams"
+
+        filePath = os.path.join(sndPath, file)
         constQ = cnstntQ(filePath)
+        jam = rj.readSingleJam(tabFile, tabPath, constQ.shape[1], hop_size=512)
 
-        plt.imshow(constQ, cmap="jet", interpolation='nearest', aspect='auto')
-        plt.show()
+        spec_tab_dict["spec"] = constQ
+        spec_tab_dict["tab"] = jam
+
+        artist = file[1]
+        songID = i
+        #print(jam.shape[1])
+        songSliceArtistList.extend([f"{artist}_{songID}_{j}" for j in range(jam.shape[0])])
+
+        if(save):
+            np.savez(f"./spec_tab/{i}", **spec_tab_dict) #saves each individual song-annotation pair
+        else:
+            plt.imshow(constQ.astype(float), cmap="jet", interpolation='nearest', aspect='auto')
+            plt.show()
+    if(save):
+        songSliceArtistList = np.array(songSliceArtistList)
+        np.save("./listSlices/ids.npy", songSliceArtistList)
 
 
 if __name__ == "__main__":
@@ -102,4 +134,5 @@ if __name__ == "__main__":
     #data = readDt(pathSound)
     #np.save("ffts.npy", data)
 
-    readDTcnstQ(pathSound)
+    #readDTcnstQ(pathSound, pathTab, save=True)
+    readDTcnstQ(pathSound, pathTab)
