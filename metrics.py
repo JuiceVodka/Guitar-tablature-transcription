@@ -9,8 +9,7 @@ def tabToPitch(tab):
         fret = tab[string, :]
         played = np.argmax(fret, -1)
         if(played > 0):
-            pitch = played + stringsMidiDict[
-                string] - 41  # to move down by pšitch of lower e string + 1 for string not played class
+            pitch = played + stringsMidiDict[string] - 41  # to move down by pitch of lower e string + 1 for string not played class
             pitchVector[pitch] = 1
     return pitchVector
 
@@ -46,12 +45,14 @@ def tabPrecision(prediction, truth):
     tabPred = np.array(list(map(tabToVec, prediction)))
     tabTruth = np.array(list(map(tabToVec, truth)))
     precision = np.sum(np.multiply(tabPred, tabTruth).flatten()) / np.sum(tabPred.flatten())
+    return precision
 
 
 def tabRecall(prediction, truth):
     tabPred = np.array(list(map(tabToVec, prediction)))
     tabTruth = np.array(list(map(tabToVec, truth)))
-    precision = np.sum(np.multiply(tabPred, tabTruth).flatten()) / np.sum(tabTruth.flatten())
+    recall = np.sum(np.multiply(tabPred, tabTruth).flatten()) / np.sum(tabTruth.flatten())
+    return recall
 
 
 

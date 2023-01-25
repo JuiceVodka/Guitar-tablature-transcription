@@ -60,11 +60,11 @@ def cnstntQ(filePath, padLen=9):
     constantq = lb.cqt(sndNorm, sr=22050, hop_length=512, n_bins=192, bins_per_octave=24) #in article hop len 512, num bins 192 -> for this samplinmg freq has to be higher
 
     cqtOut = constantq
-    #constantqMagnifie = librosa.magphase(constantq)[0]
-    #constantqDB = librosa.core.amplitude_to_db(constantqMagnifie, ref=constantqMagnifie.max())
-    #cqtOut = np.copy(constantqDB)
+    constantqMagnifie = librosa.magphase(constantq)[0]
+    constantqDB = librosa.core.amplitude_to_db(constantqMagnifie, ref=constantqMagnifie.max())
+    cqtOut = np.copy(constantqDB)
     #cqtOut[cqtOut < -60] = -60
-    #cqtOut[:, :] += 60
+    cqtOut[:, :] += np.abs(min(cqtOut.flatten()))
     #cqtOut = np.pad(constantq, ((0, 0), (math.floor(padLen/2), math.floor(padLen/2))), 'constant')
 
     print("-------")
@@ -93,13 +93,13 @@ def readDTcnstQ(sndPath, tabPath, save=False):
         songSliceArtistList.extend([f"{artist}_{songID}_{j}" for j in range(jam.shape[0])])
 
         if(save):
-            np.savez(f"./spec_tab/{i}", **spec_tab_dict) #saves each individual song-annotation pair
+            np.savez(f"./spec_tab2/{i}", **spec_tab_dict) #saves each individual song-annotation pair
         else:
             plt.imshow(constQ.astype(float), cmap="jet", interpolation='nearest', aspect='auto')
             plt.show()
-    if(save):
-        songSliceArtistList = np.array(songSliceArtistList)
-        np.save("./listSlices/ids.npy", songSliceArtistList)
+    #if(save):
+    #    songSliceArtistList = np.array(songSliceArtistList)
+    #    np.save("./listSlices/ids.npy", songSliceArtistList)
 
 
 if __name__ == "__main__":
