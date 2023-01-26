@@ -78,7 +78,7 @@ def readDTcnstQ(sndPath, tabPath, save=False):
     for i, file in enumerate(os.listdir(sndPath)):
         spec_tab_dict = {}
 
-        tabFile = f"{file[:-8]}.jams"
+        tabFile = "{}.jams".format(file[:-8])
 
         filePath = os.path.join(sndPath, file)
         constQ = cnstntQ(filePath)
@@ -90,10 +90,10 @@ def readDTcnstQ(sndPath, tabPath, save=False):
         artist = file[1]
         songID = i
         #print(jam.shape[1])
-        songSliceArtistList.extend([f"{artist}_{songID}_{j}" for j in range(jam.shape[0])])
+        songSliceArtistList.extend(["{}_{}_{}".format(artist, songID, j) for j in range(jam.shape[0])])
 
         if(save):
-            np.savez(f"./spec_tab2/{i}", **spec_tab_dict) #saves each individual song-annotation pair
+            np.savez("./spec_tab2/{}".format(i), **spec_tab_dict) #saves each individual song-annotation pair
         else:
             plt.imshow(constQ.astype(float), cmap="jet", interpolation='nearest', aspect='auto')
             plt.show()

@@ -112,33 +112,13 @@ if(__name__ == "__main__"):
     model.add(layers.Reshape((NUM_STRINGS, NUM_FRETS)))
     model.add(Activation(softmax_by_string))
 
-    """
-    # Define the model
-    model = Sequential()
-    
-    # Define convolutional layers
-    model.add(Conv2D(32, (3, 3), strides=(1, 1), activation='relu', input_shape=(192, 9, 1)))
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-    model.add(Conv2D(64, (3, 3), strides=(1, 1), activation='relu'))
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-    model.add(Conv2D(128, (3, 3), strides=(1, 1), activation='relu'))
-    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
-    
-    # Define recurrent layer
-    model.add(LSTM(128, return_sequences=True))
-    
-    # reshape the output
-    model.add(Reshape((6,21)))
-    
-    # Define the output layer
-    model.add(Activation(softmax_by_string))
-    """
 
 
-    #model.compile(loss=catCrossLoss, optimizer=adadelta.Adadelta(learning_rate=1.0), metrics=[avg_acc])
-    #model.fit_generator(generator=trainingDataGenerator, validation_data=validationDataGenerator, verbose=1, epochs=10, use_multiprocessing=True, workers=9)
+
+    model.compile(loss=catCrossLoss, optimizer=adadelta.Adadelta(learning_rate=1.0), metrics=[avg_acc])
+    model.fit_generator(generator=trainingDataGenerator, validation_data=validationDataGenerator, verbose=1, epochs=10, use_multiprocessing=True, workers=9)
     #model.save("./models/sixthModel-differentPreproc")
-    model.load_weights("./models/fifthModel-512-lr1")
+    #model.load_weights("./models/fifthModel-512-lr1")
     #model.load_weights("./models/sixthModel-differentPreproc")
 
 
@@ -149,12 +129,12 @@ if(__name__ == "__main__"):
 
     #experiment.log_confusion_matrix(y_truth, y_pred)
 
-    print(f"pitch precision: {metrics.pitchPrecision(y_pred, y_truth)}")
-    print(f"pitch recall: {metrics.pitchRecall(y_pred, y_truth)}")
-    print(f"tab precision: {metrics.tabPrecision(y_pred, y_truth)}")
-    print(f"tab recall: {metrics.tabRecall(y_pred, y_truth)}")
-    print(f"pitch f: {metrics.fMeasure(y_pred, y_truth, False)}")
-    print(f"tab f: {metrics.fMeasure(y_pred, y_truth, True)}")
+    print("pitch precision: {}".format(metrics.pitchPrecision(y_pred, y_truth)))
+    print("pitch recall: {}".format(metrics.pitchRecall(y_pred, y_truth)))
+    print("tab precision: {}".format(metrics.tabPrecision(y_pred, y_truth)))
+    print("tab recall: {}".format(metrics.tabRecall(y_pred, y_truth)))
+    print("pitch f: {}".format(metrics.fMeasure(y_pred, y_truth, False)))
+    print("tab f: {}".format(metrics.fMeasure(y_pred, y_truth, True)))
 
 
 # accuracy not very high... try more/different layers or different centering of data

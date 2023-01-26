@@ -74,10 +74,8 @@ def parseJam(jm, sr=22050, hop_size=1024):
             stride = round(note[1] * (sr/hop_size))
             tab[i, startTimeSlice:startTimeSlice+stride] = fret  # +1 #test
 
-
     #print(tab)
     return(tab)
-
 
 def readJams(path):
     tabCorpus = []
@@ -114,7 +112,7 @@ def jam2MidiArray(jamFilePath, n_bins, save=False, nameToSave="", save_path="./g
             stride = note[1] * (n_bins/duration)
             midiArray[round(tone), round(startTime):round(stride)] = 1
     if(save):
-        np.save(f"{save_path}{nameToSave}", midiArray)
+        np.save("{}{}".format(save_path, nameToSave), midiArray)
 
 
 def parseSecondDataset():

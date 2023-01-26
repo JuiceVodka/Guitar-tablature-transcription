@@ -57,8 +57,8 @@ if(__name__ == "__main__"):
                "o_a_f_fMeasure" : []}
 
     for i, file in enumerate(os.listdir(savePath)):
-        predMid = np.load(f"{savePath}predArr{i}.npz")["array"]
-        gtMid = np.load(f"./gt_midi_arrays/jamMidiArray_{i}.npy")
+        predMid = np.load("{}predArr{}.npz".format(savePath, i))["array"]
+        gtMid = np.load("./gt_midi_arrays/jamMidiArray_{}.npy".format(i))
         print(m.midiArrPrecision(predMid, gtMid))
         print(m.midiArrRecall(predMid, gtMid))
         print("--------------")
